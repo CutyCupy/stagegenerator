@@ -13,15 +13,108 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('stagegenerator.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
+	let stage = vscode.commands.registerCommand('stagegenerator.generateStage', () => {
+		const editor = vscode.window.activeTextEditor;
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from StageGenerator!');
+		if (editor) {
+			const selection = editor.selection;
+			const input = vscode.window.createInputBox();
+			input.title = "Stage Name";
+			input.show();
+
+			input.onDidAccept(() => {
+				input.dispose();
+				editor.edit(editBuilder => {
+					input.value = input.value.charAt(0).toUpperCase() + input.value.slice(1);
+
+					let shortVersion = "";
+
+					for (const char of input.value) {
+						if (char == char.toUpperCase()) {
+							shortVersion += char.toLowerCase();
+						}
+					}
+					if (!input.value.endsWith("Stage")) {
+						input.value += "Stage";
+					}
+					editBuilder.replace(selection, getStageText(shortVersion, input.value));
+				});
+			});
+
+		}
 	});
 
-	context.subscriptions.push(disposable);
+	let converter = vscode.commands.registerCommand('stagegenerator.generateConverter', () => {
+		const editor = vscode.window.activeTextEditor;
+
+		if (editor) {
+			const selection = editor.selection;
+			const input = vscode.window.createInputBox();
+			input.title = "Converter Name";
+			input.show();
+
+			input.onDidAccept(() => {
+				input.dispose();
+				editor.edit(editBuilder => {
+					input.value = input.value.charAt(0).toUpperCase() + input.value.slice(1);
+
+					let shortVersion = "";
+
+					for (const char of input.value) {
+						if (char == char.toUpperCase()) {
+							shortVersion += char.toLowerCase();
+						}
+					}
+					if (!input.value.endsWith("Converter")) {
+						input.value += "Converter";
+					}
+					editBuilder.replace(selection, getConverterText(shortVersion, input.value));
+				});
+			});
+
+		}
+	});
+
+	context.subscriptions.push(stage);
+	context.subscriptions.push(converter);
 }
 
+function getStageText(short: string, long: string): string {
+	return `type ${long} struct {
+	ID syncore.StageID
+}
+	
+func (${short} *${long}) GetID() syncore.StageID {
+	return ${short}.ID
+}
+
+func (${short} *${long}) GetDependencies() []syncore.StageDependency {
+	return []syncore.StageDependency{}
+}
+
+func (${short} *${long}) Exec(ctx *syncore.StageContext) error {
+	
+	return nil
+}`
+}
+
+function getConverterText(short: string, long: string): string {
+	return `type ${long} struct {
+	ID syncore.ConverterID
+}
+	
+func (${short} *${long}) GetID() syncore.ConverterID {
+	return ${short}.ID
+}
+
+func (${short} *${long}) GetFilledTables() []string {
+	return []string{}
+}
+
+func (${short} *${long}) Convert(ctx *syncore.ConverterContext) error {
+	
+	return nil
+}`
+}
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

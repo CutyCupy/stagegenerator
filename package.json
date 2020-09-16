@@ -10,14 +10,19 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:stagegenerator.helloWorld"
+		"onCommand:stagegenerator.generateStage",
+		"onCommand:stagegenerator.generateConverter"
 	],
-	"main": "./out/extension.js",
+	"main": "./out/extension",
 	"contributes": {
 		"commands": [
 			{
-				"command": "stagegenerator.helloWorld",
-				"title": "Hello World"
+				"command": "stagegenerator.generateStage",
+				"title": "Generate Stage"
+			},
+			{
+				"command": "stagegenerator.generateConverter",
+				"title": "Generate Converter"
 			}
 		]
 	},
